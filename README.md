@@ -12,11 +12,16 @@
 >    ```
 
 > 2. 修改配置
->    - 环境变量:
->        - 需修改 `Btype = "本地"` 为 `Btype = "青龙"`
->        - 变量名为 `linxivps`
+>    - 推送支持 `wxpusher`、`Telegram`、`Bark` 支持同时推送多个平台
+>    - 青龙运行:
+>        - 新增变量`Btype` 值为`青龙`
+>        - 新增变量 `linxivps`
 >        - 值为 `{"name":"备注","username":"账号","password":"密码"}`
 >          `{"name":"备注","username":"账号","password":"密码"}` 换行分割!
+>    - 青龙推送:
+>        - `wxpusher` 新增变量 `wxpusher_uid` 值为 https://wxpusher.zjiecode.com/demo/ 扫码获得（例如UID_xxx）的 uid
+>        - `Telegram` 直接修改青龙配置文件（暂不支持代理）
+>        - `Bark` 直接修改青龙配置文件
 >    - 本地运行:
 >      修改代码 `ck_token`:
 >      ```python
@@ -26,6 +31,11 @@
 >      ]
 >      ```
 >      为自己真实的账号密码
+>    - 本地推送:
+>        - `wxpusher` 填写 `WxUID` 值为 https://wxpusher.zjiecode.com/demo/ 扫码获得（例如UID_xxx）的 uid
+>        - `Telegram` 填写`telegram_token`和`chat_id`（暂不支持代理）
+>        - `Bark` 填写 `bark_token`
+
 
 > 3. 运行程序:
 >    ```bash
