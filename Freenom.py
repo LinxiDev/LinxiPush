@@ -1,5 +1,8 @@
 # Author: lindaye
 # Update:2023-09-26
+# 使用说明: 
+#     1.青龙面板(环境变量)： 需修改Btype = "本地"为Btype = "青龙",环境变量(变量名为linxivps 值为{"name":"备注","username":"账号","password":"密码"}) 多号换行[一行一个]
+#     2.本地/直接运行: 需修改代码ck_token = [{"name":"测试","username":"123@123.com","password":"123456"}] 即可多号[{},{}]
 # 软件版本
 version = "0.0.1"
 name = "Freenom 域名续期"
