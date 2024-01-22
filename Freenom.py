@@ -109,7 +109,7 @@ if __name__ == "__main__":
         ck_token = [json.loads(line) for line in os.getenv(linxi_token).splitlines()]
     else:
         # 本地CK列表
-        freenom_token = [
+        ck_token = [
             #{"name":"测试","username":"123@123.com","password":"123456"}
         ]
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     with Pool() as pool:
         if freenom_token != []:
             print("=================♻️Freenom 域名♻️================") 
-            pool.starmap(process_wrapper, [(freenom, (i, ck)) for i, ck in enumerate(freenom_token)])
+            pool.starmap(process_wrapper, [(freenom, (i, ck)) for i, ck in enumerate(ck_token)])
         # 关闭进程池
         pool.close()
         # 等待所有子进程执行完毕
