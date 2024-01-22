@@ -170,7 +170,7 @@ if __name__ == "__main__":
         # 变量CK列表
         ck_token = [json.loads(line) for line in os.getenv(linxi_token).splitlines()]
         # 青龙推送
-        WxUID = os.getenv("wxpusher_token")
+        WxUID = os.getenv("wxpusher_uid")
         telegram_token = os.getenv("TG_BOT_TOKEN")
         chat_id = os.getenv("TG_USER_ID")
         bark_token = os.getenv("BARK_PUSH")
