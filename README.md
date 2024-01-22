@@ -18,12 +18,13 @@
 >        - 新增变量 `linxivps`
 >        - 值为 `{"name":"备注","username":"账号","password":"密码"}`
 >          `{"name":"备注","username":"账号","password":"密码"}` 换行分割!
+>        - 推送默认关闭 新增变量 `freenom_push` 值为 `true` 开启
 >    - 青龙推送:
 >        - `wxpusher` 新增变量 `wxpusher_uid` 值为 https://wxpusher.zjiecode.com/demo/ 扫码获得（例如UID_xxx）的 uid
 >        - `Telegram` 直接修改青龙配置文件（暂不支持代理）
 >        - `Bark` 直接修改青龙配置文件
 >    - 本地运行:
->      修改代码 `ck_token`:
+>        - 修改代码 `ck_token`:
 >      ```python
 >      ck_token = [
 >          {"name":"备注","username":"123@123.com","password":"123456"},
@@ -31,6 +32,7 @@
 >      ]
 >      ```
 >      为自己真实的账号密码
+>        - 推送默认关闭 修改代码 `push` 值为 `true` 开启
 >    - 本地推送:
 >        - `wxpusher` 填写 `WxUID` 值为 https://wxpusher.zjiecode.com/demo/ 扫码获得（例如UID_xxx）的 uid
 >        - `Telegram` 填写`telegram_token`和`chat_id`（暂不支持代理）
