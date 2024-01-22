@@ -16,7 +16,7 @@
 >        - 需修改 `Btype = "本地"` 为 `Btype = "青龙"`
 >        - 变量名为 `linxivps`
 >        - 值为 `{"name":"备注","username":"账号","password":"密码"}`
->          `{"name":"备注","username":"账号","password":"密码"}`
+>          `{"name":"备注","username":"账号","password":"密码"}` 换行分割!
 >    - 本地运行:
 >      修改代码 `ck_token`:
 >      ```python
