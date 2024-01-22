@@ -4,7 +4,7 @@
 #     1.青龙面板(环境变量)： 需修改Btype = "本地"为Btype = "青龙",环境变量(变量名为linxivps 值为{"name":"备注","username":"账号","password":"密码"}) 多号换行[一行一个]
 #     2.本地/直接运行: 需修改代码ck_token = [{"name":"测试","username":"123@123.com","password":"123456"}] 即可多号[{},{}]
 # 软件版本
-version = "0.0.1"
+version = "0.0.2"
 name = "Freenom 域名续期"
 linxi_token = "linxivps"
 linxi_tips = '{"name":"备注","username":"账号","password":"密码"}'
@@ -14,10 +14,14 @@ import re
 import json
 import time
 import requests
+from urllib.parse import quote
 from multiprocessing import Pool
 
 # 变量类型(本地/青龙)
 Btype = "本地"
+# Wxpusher 通知UID
+# https://wxpusher.zjiecode.com/demo/ 扫码获得 例如UID_xxx
+WxUID = ""
 # 保持连接,重复利用
 ss = requests.session()
 # 全局域名
@@ -52,19 +56,23 @@ def freenom(i, ck, token):
                                 data = {"token": token, "renewalid": renewal_id, f"renewalperiod[{renewal_id}]": "12M", "paymentmethod": "credit"}
                                 result = ss.post(f"{domain}/domains.php?submitrenewals=true", data=data).text
                                 if "Order Confirmation" in result:
-                                    tips += f"\t域名:{do}续期成功!\n"
+                                    tips += f" 域名:{do}续期成功!\n"
                                 else:
-                                    tips += f"\t域名:{do}续期失败!\n"
+                                    tips += f" 域名:{do}续期失败!\n"
                             else:
-                                tips += f"\t域名:{do} 剩余:{days} 天续期!\n"
+                                tips += f" 域名:{do} 剩余:{days} 天续期!\n"
                         print(f"账号【{i+1}】[{ck['name']}] ✴️ [Freenom] 账号:{username} 续期结果: {tips}")
+                        send_msg(i,f"FreeNom 续期查询: \n 账号:{username} \n✴️ 续期结果: {tips}")
                 else:
                     print(f"账号【{i+1}】[{ck['name']}] ❌ [Freenom] 账号:{username} 获取账号Token失败!")
+                    send_msg(i,f"FreeNom 续期异常: \n 账号:{username} \n❌ 获取账号Token失败!")
             else:
                 print(f"账号【{i+1}】[{ck['name']}] ❌ [Freenom] 账号:{username} 登陆状态验证失败,请检查账号密码!")
+                send_msg(i,f"FreeNom 续期异常: \n 账号:{username} \n❌ 登陆状态验证失败,请检查账号密码!")
             break
         else:
             print(f"账号【{i+1}】[{ck['name']}] 🆘 [Freenom] 账号:{username} 未知异常:{result}!")
+            send_msg(i,f"FreeNom 续期异常: \n 账号:{username} \n🆘 未知异常:{result}!")
         time.sleep(3)
 
 def process_wrapper(func, args):
@@ -75,7 +83,51 @@ def process_wrapper(func, args):
 
 def handle_exception(e,i):
     print(f"账号【{i+1}】🆘 程序出现异常:", e)
+    send_msg(i,f"FreeNom 续期错误: \n {e}")
     
+def send_msg(i,body):
+    if WxUID == "":
+        print(f"账号【{i+1}】Wxpusher 通知: ❌ 未填写Wxpusher UID 不推送消息!")
+        return
+    # Telegram
+    # token = '机器人Token'
+    # chat_id = '接收人'
+    # url = f'https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}'
+    # result = requests.get(url).json()
+    # if result['ok']:
+    #     print(f"账号【{i+1}】Telegram 通知: ✅ 推送成功!")
+    # else:
+    #     print(f"账号【{i+1}】Telegram 通知: ❌ 推送失败!")
+    ipinfo = ss.get("https://v4.ip.zxinc.org/info.php?type=json").json()
+    ipname = ipinfo['data']['location']
+    ip = ipinfo['data']['myip']
+    code = f'''{name}通知
+        <body style="font-family: 'Arial', sans-serif; background-color: #f2f2f2; margin: 0; padding: 20px;">
+
+            <div class="notification" style="background-color: #ffffff; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                <h2 style="color: #333; text-align: center;">🔭 任务执行结束 🔭</h2>
+                <h3 style="color: #666; text-align: center;">🏁 {name} 🏁</h3>
+                <div class="code-block" style="background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin-top: 15px; overflow: auto;">
+                    <pre style="color: #333;">{body}</pre>
+                </div>
+                <div class="ip-address" style="margin-top: 15px; text-align: center; font-weight: bold; color: #007bff;">
+                    推送IP: {ipname}({ip})
+                </div>
+            </div>
+
+            <div class="separator" style="margin: 20px 0; border-top: 1px solid #ddd;"></div>
+
+            <div class="end-message" style="text-align: center; color: #28a745; font-weight: bold;">
+                任务已完成
+            </div>
+
+        </body>
+    '''
+    result = ss.get(f"https://wxpusher.zjiecode.com/demo/send/custom/{WxUID}?content={quote(code)}").json()
+    if result['code'] == 1000:
+        print(f"账号【{i+1}】Wxpusher 通知: ✅ 推送成功!")
+    else:
+        print(f"账号【{i+1}】Wxpusher 通知: ❌ 推送失败!")
     
 if __name__ == "__main__":
     print(f"""
@@ -97,7 +149,6 @@ if __name__ == "__main__":
     else:
         # 本地CK列表
         ck_token = [
-            {"name":"测试","username":"123@123.com","password":"123456"},
             {"name":"测试","username":"123@123.com","password":"123456"}
         ]
     if ck_token == []:
