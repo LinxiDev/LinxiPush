@@ -115,15 +115,13 @@ if __name__ == "__main__":
         ck_token = [
             #{"name":"测试","username":"123@123.com","password":"123456"}
         ]
-
-        if freenom_token == []:
-            print(f'⛔ 本地变量异常: 请添加本地ck_token示例:{linxi_tips}')
-            exit()
+    if ck_token == []:
+        print(f'⛔ 本地变量异常: 请添加本地ck_token示例:{linxi_tips}')
+        exit()
     # 创建进程池
     with Pool() as pool:
-        if ck_token != []:
-            print("=================♻️Freenom 域名♻️================") 
-            pool.starmap(process_wrapper, [(freenom, (i, ck)) for i, ck in enumerate(ck_token)])
+        print("=================♻️Freenom 域名♻️================") 
+        pool.starmap(process_wrapper, [(freenom, (i, ck)) for i, ck in enumerate(ck_token)])
         # 关闭进程池
         pool.close()
         # 等待所有子进程执行完毕
