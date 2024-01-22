@@ -121,7 +121,7 @@ if __name__ == "__main__":
             exit()
     # 创建进程池
     with Pool() as pool:
-        if freenom_token != []:
+        if ck_token != []:
             print("=================♻️Freenom 域名♻️================") 
             pool.starmap(process_wrapper, [(freenom, (i, ck)) for i, ck in enumerate(ck_token)])
         # 关闭进程池
