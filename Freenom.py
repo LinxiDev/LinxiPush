@@ -22,6 +22,8 @@ if os.getenv("Btype") is None:
     Btype = "本地"
 else:
     Btype = "青龙"
+# 推送开关(true开启 false关闭)
+push = "false"
 # Wxpusher 通知UID
 # https://wxpusher.zjiecode.com/demo/ 扫码获得 例如UID_xxx
 WxUID = ""
@@ -42,6 +44,7 @@ headers = {
     'referer': 'https://my.freenom.com/clientarea.php',
     'authority': 'my.freenom.com',
 }
+freenom_push = ""
 
 def freenom(i, ck, token):
     username = ck['username']
@@ -96,60 +99,64 @@ def handle_exception(e,i):
     send_msg(i,f"FreeNom 续期错误: \n {e}")
 
 def send_msg(i,body):
-    # Wxpusher
-    if WxUID == "" or WxUID is None:
-        print(f"账号【{i + 1}】Wxpusher 通知: ❌ 未填写 Wxpusher UID 不推送消息!")
-    else:
-        ipinfo = ss.get("https://v4.ip.zxinc.org/info.php?type=json").json()
-        ipname = ipinfo['data']['location']
-        ip = ipinfo['data']['myip']
-        code = f'''{name}通知
-                <body style="font-family: 'Arial', sans-serif; background-color: #f2f2f2; margin: 0; padding: 20px;">
-
-                    <div class="notification" style="background-color: #ffffff; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-                        <h2 style="color: #333; text-align: center;">🔭 任务执行结束 🔭</h2>
-                        <h3 style="color: #666; text-align: center;">🏁 {name} 🏁</h3>
-                        <div class="code-block" style="background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin-top: 15px; overflow: auto;">
-                            <pre style="color: #333;">{body}</pre>
-                        </div>
-                        <div class="ip-address" style="margin-top: 15px; text-align: center; font-weight: bold; color: #007bff;">
-                            推送IP: {ipname}({ip})
-                        </div>
-                    </div>
-
-                    <div class="separator" style="margin: 20px 0; border-top: 1px solid #ddd;"></div>
-
-                    <div class="end-message" style="text-align: center; color: #28a745; font-weight: bold;">
-                        任务已完成
-                    </div>
-
-                </body>
-            '''
-        result = ss.get(f"https://wxpusher.zjiecode.com/demo/send/custom/{WxUID}?content={quote(code)}").json()
-        if result['code'] == 1000:
-            print(f"账号【{i + 1}】Wxpusher 通知: ✅ 推送成功!")
+    # 判断是否开启推送
+    if push == "true" or freenom_push == "true":
+        # Wxpusher
+        if WxUID == "" or WxUID is None:
+            print(f"账号【{i + 1}】Wxpusher 通知: ❌ 未填写 Wxpusher UID 不推送消息!")
         else:
-            print(f"账号【{i + 1}】Wxpusher 通知: ❌ 推送失败!")
-    # Telegram
-    if telegram_token == "" or chat_id == "" or telegram_token is None or chat_id is None:
-        print(f"账号【{i + 1}】Telegram 通知: ❌ 未填写 telegram_token 或 chat_id 不推送消息!")
-    else:
-        url = f'https://api.telegram.org/bot{telegram_token}/sendMessage?chat_id={chat_id}&text={body}'
-        result = ss.get(url).json()
-        if result['ok']:
-            print(f"账号【{i + 1}】Telegram 通知: ✅ 推送成功!")
+            ipinfo = ss.get("https://v4.ip.zxinc.org/info.php?type=json").json()
+            ipname = ipinfo['data']['location']
+            ip = ipinfo['data']['myip']
+            code = f'''{name}通知
+                        <body style="font-family: 'Arial', sans-serif; background-color: #f2f2f2; margin: 0; padding: 20px;">
+
+                            <div class="notification" style="background-color: #ffffff; border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                                <h2 style="color: #333; text-align: center;">🔭 任务执行结束 🔭</h2>
+                                <h3 style="color: #666; text-align: center;">🏁 {name} 🏁</h3>
+                                <div class="code-block" style="background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 5px; padding: 10px; margin-top: 15px; overflow: auto;">
+                                    <pre style="color: #333;">{body}</pre>
+                                </div>
+                                <div class="ip-address" style="margin-top: 15px; text-align: center; font-weight: bold; color: #007bff;">
+                                    推送IP: {ipname}({ip})
+                                </div>
+                            </div>
+
+                            <div class="separator" style="margin: 20px 0; border-top: 1px solid #ddd;"></div>
+
+                            <div class="end-message" style="text-align: center; color: #28a745; font-weight: bold;">
+                                任务已完成
+                            </div>
+
+                        </body>
+                    '''
+            result = ss.get(f"https://wxpusher.zjiecode.com/demo/send/custom/{WxUID}?content={quote(code)}").json()
+            if result['code'] == 1000:
+                print(f"账号【{i + 1}】Wxpusher 通知: ✅ 推送成功!")
+            else:
+                print(f"账号【{i + 1}】Wxpusher 通知: ❌ 推送失败!")
+        # Telegram
+        if telegram_token == "" or chat_id == "" or telegram_token is None or chat_id is None:
+            print(f"账号【{i + 1}】Telegram 通知: ❌ 未填写 telegram_token 或 chat_id 不推送消息!")
         else:
-            print(f"账号【{i + 1}】Telegram 通知: ❌ 推送失败!")
-    # Bark
-    if bark_token == "" or bark_token is None:
-        print(f"账号【{i + 1}】Bark 通知: ❌ 未填写 bark_token 不推送消息!")
-    else:
-        bark_api = f'https://api.day.app/{bark_token}/Freenom通知/{body}'
-        result = ss.get(bark_api).json()
-        if result['code'] == 200:
-            print(f"账号【{i + 1}】Bark 通知: ✅ 推送成功!")
+            url = f'https://api.telegram.org/bot{telegram_token}/sendMessage?chat_id={chat_id}&text={body}'
+            result = ss.get(url).json()
+            if result['ok']:
+                print(f"账号【{i + 1}】Telegram 通知: ✅ 推送成功!")
+            else:
+                print(f"账号【{i + 1}】Telegram 通知: ❌ 推送失败!")
+        # Bark
+        if bark_token == "" or bark_token is None:
+            print(f"账号【{i + 1}】Bark 通知: ❌ 未填写 bark_token 不推送消息!")
         else:
-            print(f"账号【{i + 1}】Bark 通知: ❌ 推送失败!")
+            bark_api = f'https://api.day.app/{bark_token}/Freenom通知/{body}'
+            result = ss.get(bark_api).json()
+            if result['code'] == 200:
+                print(f"账号【{i + 1}】Bark 通知: ✅ 推送成功!")
+            else:
+                print(f"账号【{i + 1}】Bark 通知: ❌ 推送失败!")
+    else:
+        print('未开启推送')
 
 
 if __name__ == "__main__":
@@ -169,14 +176,17 @@ if __name__ == "__main__":
             exit()
         # 变量CK列表
         ck_token = [json.loads(line) for line in os.getenv(linxi_token).splitlines()]
-        # 青龙推送
-        WxUID = os.getenv("wxpusher_uid")
-        telegram_token = os.getenv("TG_BOT_TOKEN")
-        chat_id = os.getenv("TG_USER_ID")
-        bark_token = os.getenv("BARK_PUSH")
-        if not (WxUID or telegram_token or chat_id or bark_token):
-            print('⛔ 青龙变量异常: 未配置推送')
-            exit()
+        freenom_push = os.getenv("freenom_push")
+        if freenom_push == "true":
+            # 青龙推送
+            WxUID = os.getenv("wxpusher_uid")
+            telegram_token = os.getenv("TG_BOT_TOKEN")
+            chat_id = os.getenv("TG_USER_ID")
+            bark_token = os.getenv("BARK_PUSH")
+            if not (WxUID or telegram_token or chat_id or bark_token):
+                print('⛔ 青龙推送异常: 未配置推送')
+        else:
+            print('未开启推送')
     else:
         # 本地CK列表
         ck_token = [
