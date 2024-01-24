@@ -1,6 +1,6 @@
 # Author: lindaye
 # Update:2024-01-24
-# 使用说明: 自行查看https://github.com/linxi-520/LinxiPush
+# 使用说明: 自行查看文档 https://github.com/linxi-520/LinxiPush 
 # 软件版本
 version = "1.0.0"
 name = "Freenom 域名续期"
