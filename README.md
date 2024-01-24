@@ -22,7 +22,7 @@
          {"name":"备注","username":"账号","password":"密码"}
          {"name":"备注","username":"账号","password":"密码"}
          ```
-        ![示例](https://github.com/linxi-520/LinxiPush/blob/main/yzsm.png)
+        ![示例](https://github.com/linxi-520/LinxiPush/blob/main/img/user.png)
        - 推送配置`变量名`为 `linxipush`
        - 推送配置`值`为 
          ```json
@@ -31,7 +31,7 @@
              "keys":["telegram_id","wxpusher_UID","pushplus_key","bark_key","serverj_key","wecompush_key","wechatpush_openid"]
          }
          ```
-         ![示例](https://github.com/linxi-520/LinxiPush/blob/main/yzsm.png)
+         ![示例](https://github.com/linxi-520/LinxiPush/blob/main/img/push.png)
        - 消息推送说明: `types` 与 `keys` 一一对应,且可单选和多选。
             | 类型 | 对应的 key 值 | 备注 |
             | --- | --- | --- |
@@ -61,7 +61,7 @@
     ```
 
 # 赞赏
-![赞赏码](https://github.com/linxi-520/LinxiPush/blob/main/yzsm.png)
+![赞赏码](https://github.com/linxi-520/LinxiPush/blob/main/img/yzsm.png)
 
 # 注意提醒
 本仓库脚本仅用于交流学习，请下载后24小时内自行删除。
