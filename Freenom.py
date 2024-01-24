@@ -99,7 +99,7 @@ def send_msg(i,body):
             }
             result = ss.post(f"https://api.linxi.tk/api/push/message",json=data).json()
             if result['code'] == 200:
-                for ts in push['types']:
+                for ts in pushs['types']:
                     print(f"账号【{i+1}】{result[ts]['tips']}!")
             else:
                 print(f"账号【{i+1}】推送通知: ❌ 推送失败!")
