@@ -17,7 +17,7 @@ from multiprocessing import Pool
 
 # 变量类型(本地/青龙)
 Btype = "青龙"
-# Wxpusher 通知UID
+# 消息通知配置信息
 push = os.getenv("linxipush")
 # 保持连接,重复利用
 ss = requests.session()
@@ -86,7 +86,6 @@ def send_msg(i,body):
     if push:
         try:
             pushs = json.loads(push)
-
             if len(pushs['types']) != len(pushs['keys']):
                 print(f"账号【{i+1}】推送通知: ❌ 错误填写通知配置信息,不执行消息推送!")
                 return
