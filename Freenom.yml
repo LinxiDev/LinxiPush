@@ -27,5 +27,4 @@ jobs:
         linxipush: ${{ secrets.linxipush }}
         linxivps: ${{ secrets.linxivps }}
       run: 
-        env
         python Freenom.py
