@@ -33,11 +33,12 @@ headers = {
 def freenom(i, ck, token):
     username = ck['username']
     data = {"username": username, "password": ck['password']}
-    cookies = {'aws-waf-token': token}
-    result = ss.post(f"{domain}/dologin.php", headers=headers, cookies=cookies, data=data)
+    if token:
+        result = ss.post(f"{domain}/dologin.php", headers=headers, cookies={'aws-waf-token': token}, data=data)
+    else:
+        result = ss.post(f"{domain}/dologin.php", headers=headers, data=data)
     for count in range(3):
         if result.status_code == 200:
-            print(f"账号【{i+1}】[{ck['name']}] ✅ [Freenom] 账号:{username} AWS-WAF验证成功!")
             result = ss.get(f"{domain}/domains.php?a=renewals", headers=headers).text
             if "logout.php" in result:
                 token = re.findall('name="token" value="(.*?)"', result)
@@ -134,8 +135,12 @@ if __name__ == "__main__":
             print(f'⛔ 本地变量异常: 请添加本地ck_token示例:{linxi_tips}')
             exit()
     print("=================♻️Freenom 域名♻️================")
+    token = False
     try:
-        token = ss.get("http://dt.lieren.link/token").json()['token']
+        result = ss.get("https://my.freenom.com/clientarea.php",headers=headers)
+        if result.status_code != 200:
+            print(f"[Freenom] 官网访问失败 状态码: {result.status_code} 开始获取AWS-WAF-Token!")
+            token = ss.get("http://dt.lieren.link/token").json()['token']
     except Exception as e:
         print(f'⛔ 获取AWS-WAF-Token失败: {e}')
         exit()
