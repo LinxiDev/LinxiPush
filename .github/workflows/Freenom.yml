@@ -1,0 +1,35 @@
+name: 自动Freenom续期
+
+on:
+  schedule:
+    - cron: '0 12 * * SUN'  # 每周日 UTC 时间 12:00 运行
+  workflow_dispatch: # 手动触发
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: 设置Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'  # 指定Python3.x
+
+    - name: 设置WARP
+      uses: fscarmen/warp-on-actions@v1.0
+      with:
+          mode: wireguard
+    
+    - name: 安装Python依赖
+      run: |
+        pip install requests
+
+    - name: 执行续期
+      env:
+        linxipush: ${{ secrets.linxipush }}
+        linxivps: ${{ secrets.linxivps }}
+      run: 
+        python Freenom.py
