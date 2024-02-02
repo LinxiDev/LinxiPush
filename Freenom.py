@@ -2,7 +2,7 @@
 # Update:2024-01-24
 # 使用说明: 自行查看文档 https://github.com/linxi-520/LinxiPush 
 # 软件版本
-version = "1.0.0"
+version = "1.0.1"
 name = "Freenom 域名续期"
 linxi_token = "linxivps"
 linxi_tips = '{"name":"备注","username":"账号","password":"密码"}'
