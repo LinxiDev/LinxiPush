@@ -20,7 +20,7 @@ jobs:
 
     - name: 设置WARP
       uses: fscarmen/warp-on-actions@v1.0
-        with:
+      with:
           mode: wireguard
     
     - name: 安装Python依赖
