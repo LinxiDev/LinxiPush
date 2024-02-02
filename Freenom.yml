@@ -18,6 +18,11 @@ jobs:
       with:
         python-version: '3.9'  # 指定Python3.x
 
+    - name: 设置WARP
+        uses: fscarmen/warp-on-actions@v1.0
+        with:
+          mode: wireguard
+    
     - name: 安装Python依赖
       run: |
         pip install requests
