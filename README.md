@@ -3,7 +3,7 @@
 基于Python的各种脚本仓库，欢迎投稿！
 
 ## Freenom域名续费
-
+`2024-02-07` Freenom域名成为历史。所属所有域名均失效！！！！
 `Freenom域名续费`，用于`Freenom`的域名（.tk、.gq 等）自动续期，支持`AWS-WAF验证`Token。
 
 ### 使用方法
