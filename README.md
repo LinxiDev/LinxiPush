@@ -9,7 +9,7 @@
 
 # 💖 赞赏
 <img src="https://github.com/linxi-520/LinxiPush/blob/main/img/yzsm.png" height="232" width="336">
-![pF5ueXT.png](https://s21.ax1x.com/2024/03/26/pF5ueXT.png)
+<img src="https://s21.ax1x.com/2024/03/26/pF5ueXT.png" height="232" width="336">
 
 
 # ⚠️ 注意提醒
