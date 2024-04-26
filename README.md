@@ -7,6 +7,12 @@
 - `2024-02-07` Freenom域名成为历史。所有附属域名均失效！！😱
 - `2024-01-20` `Freenom域名续费`，用于`Freenom`的域名（.tk、.gq 等）自动续期，支持`AWS-WAF验证`Token。🔄
 
+## ☢️ ShellScript (服务器快速一键部署脚本)
+- `2024-04-26` 支持Python3、JAVA8、Minio、MySQL5.7、MySQL8.0、Redis6...等等多种软件一键部署。
+
+## ☣️ PyScript (青龙/娱乐 Python脚本)
+- `2024-04-26` 存放青龙、其他福利和各类Python脚本。
+
 # 💖 赞赏
 <img src="https://github.com/linxi-520/LinxiPush/blob/main/img/yzsm.png" height="232" width="336">
 
