@@ -15,7 +15,7 @@ root_path=$PWD
 # 软件远程下载地址
 declare -A software_urls
 software_urls["Docker"]="https://get.docker.com"
-software_urls["Docker-Compose"]="https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-`uname -s`-`uname -m`"
+software_urls["Docker-Compose"]="https://github.moeyy.xyz/https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-`uname -s`-`uname -m`"
 software_urls["Qinglong"]="qinglong:latest"
 software_urls["Python3"]="https://mirrors.huaweicloud.com/python/3.9.9/Python-3.9.9.tar.xz"
 software_urls["JAVA"]="https://repo.huaweicloud.com/java/jdk/8u202-b08/jdk-8u202-linux-x64.tar.gz"
@@ -32,19 +32,23 @@ install_Docker-Compose(){
     local filename=$1
     if command -v docker-compose &> /dev/null; then
         echo "[安装结束] Docker-Compose 已安装."
+        read -p "[提示信息] 是否继续安装(Y/N)?" choice
+        case "$choice" in 
+        y|Y|yes ) echo "[重新安装] 开始重新安装Docker-Compose"
+                rm -rf /usr/local/bin/docker-compose
+                check_ok "[删除文件] 删除Docker-Compose相关文件"
+                install_Docker-Compose $filename
+                ;;
+        n|N|no ) echo "[检查安装] 检查Docker-Compose安装状态"
+                docker-compose --version
+                ;;
+        * ) echo "无效的输入，请输入Y或N!"
+        esac
     else
-        cp $filename /usr/local/docker-compose
-        chmod +x /usr/local/docker-compose
-        if [ -f "/usr/bin/docker-compose" ]; then
-            # Docker-Compose已安装，替换软链接
-            sudo rm /usr/bin/docker-compose   # 删除旧的软链接
-            sudo ln -s /usr/local/docker-compose /usr/bin/docker-compose   # 创建新的软链接，将xxx替换为实际版本号
-            echo "[软链接] Docker-Compose软链接已更新"
-        else
-            # Docker-Compose未安装，创建软链接
-            sudo ln -s /usr/local/docker-compose /usr/bin/docker-compose   # 创建新的软链接，将xxx替换为实际版本号
-            echo "[软链接] Docker-Compose软链接已创建"
-        fi
+        cp $filename /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+        docker-compose --version
+        check_ok "[安装完成] Docker-Compose 安装完成."
     fi
 }
 
