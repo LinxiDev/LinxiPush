@@ -96,7 +96,7 @@ if __name__ == "__main__":
 ███████╗██║██║ ╚████║██╔╝ ██╗██║      ██████╔╝███████╗██║ ╚═╝ ██║╚██████╔╝
 ╚══════╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝      ╚═════╝ ╚══════╝╚═╝     ╚═╝ ╚═════╝ 
     项目:{name}           BY-林夕          Verion: {version}(并发)
-    Github仓库地址: https://github.com/linxi-520/LinxiPush
+    Github仓库地址: https://github.com/LinxiDev/LinxiPush
 """)
     if Btype == "青龙":
         if os.getenv(linxi_token) == None:

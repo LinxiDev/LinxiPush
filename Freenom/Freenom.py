@@ -1,6 +1,6 @@
 # Author: lindaye
 # Update:2024-01-24
-# 使用说明: 自行查看文档 https://github.com/linxi-520/LinxiPush 
+# 使用说明: 自行查看文档 https://github.com/LinxiDev/LinxiPush 
 # 软件版本
 version = "1.0.1"
 name = "Freenom 域名续期"
@@ -118,7 +118,7 @@ if __name__ == "__main__":
 ██║     ██║  ██║███████╗███████╗    ██║ ╚████║╚██████╔╝██║ ╚═╝ ██║
 ╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝    ╚═╝  ╚═══╝ ╚═════╝ ╚═╝     ╚═╝
     项目:{name}           BY-林夕          Verion: {version}(并发)
-    Github仓库地址: https://github.com/linxi-520/LinxiPush
+    Github仓库地址: https://github.com/LinxiDev/LinxiPush
 """)
     if Btype == "青龙":
         if os.getenv(linxi_token) == None:
