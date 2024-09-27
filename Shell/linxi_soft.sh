@@ -1,7 +1,16 @@
 #!/bin/bash
-# Project:Centos 软件一键安装脚本
+# Project: Linux 服务器软件一键安装脚本
 # Author: 林夕
-# Update: 2024-04-23
+# Update: 2024-09-17
+# Description: 
+#   1.更新支持Ubuntu系列(修改软件依赖)
+#   2.修复检测网络状态(无ping命令情况)
+#   3.优化make编译(make -j$(nproc))
+
+# 换源(国内)操作
+switch_source(){
+    bash <(curl -sSL https://linuxmirrors.cn/main.sh)
+}
 
 # 账号密码配置
 MYSQL_PASSWORD="linxi110"
@@ -19,13 +28,15 @@ software_urls["Docker-Compose"]="https://github.moeyy.xyz/https://github.com/doc
 software_urls["Qinglong"]="qinglong:latest"
 software_urls["Python3"]="https://mirrors.huaweicloud.com/python/3.9.9/Python-3.9.9.tar.xz"
 software_urls["JAVA"]="https://repo.huaweicloud.com/java/jdk/8u202-b08/jdk-8u202-linux-x64.tar.gz"
+software_urls["JAVA21"]="https://mirrors.tuna.tsinghua.edu.cn/Adoptium/21/jdk/x64/linux/OpenJDK21U-jdk_x64_linux_hotspot_21.0.4_7.tar.gz"
 software_urls["Tomcat"]="https://mirrors.huaweicloud.com/apache/tomcat/tomcat-8/v8.5.96/bin/apache-tomcat-8.5.96.tar.gz"
 software_urls["MINIO"]="http://dl.minio.org.cn/server/minio/release/linux-amd64/minio"
 software_urls["Nginx"]="https://mirrors.huaweicloud.com/nginx/nginx-1.25.5.tar.gz"
 software_urls["Redis"]="https://mirrors.huaweicloud.com/redis/redis-6.2.7.tar.gz"
 software_urls["MySQL5.7.38"]="https://mirrors.huaweicloud.com/mysql/Downloads/MySQL-5.7/mysql-5.7.38-linux-glibc2.12-x86_64.tar.gz"
 software_urls["MySQL8.0.29"]="https://mirrors.huaweicloud.com/mysql/Downloads/MySQL-8.0/mysql-8.0.29-linux-glibc2.12-x86_64.tar.xz"
-software_urls["LibreOffice"]="http://mirrors.cloud.tencent.com/libreoffice/libreoffice/stable/7.6.6/rpm/x86_64/LibreOffice_7.6.6_Linux_x86-64_rpm.tar.gz"
+software_urls["LibreOffice"]="https://downloadarchive.documentfoundation.org/libreoffice/old/7.6.7.2/rpm/x86_64/LibreOffice_7.6.7.2_Linux_x86-64_rpm.tar.gz"
+# https://downloadarchive.documentfoundation.org/libreoffice/old/7.6.7.2/deb/x86_64/LibreOffice_7.6.7.2_Linux_x86-64_deb.tar.gz
 
 # 安装Docker-Compose
 install_Docker-Compose(){
@@ -59,6 +70,7 @@ install_Docker(){
         echo "[安装结束] Docker 已安装."
     else
         curl -fsSL $url | bash -s docker --mirror Aliyun
+        check_ok "[执行脚本] 执行脚本完成"
         echo "[开机自启] 设置Docker开机自启"
         systemctl enable docker.service
         echo "[安装结束] Docker 安装完成."
@@ -96,7 +108,7 @@ install_JAVA(){
         sudo mv jdk1.8.0_202 /usr/local/java8
         cat >> /etc/profile <<'EOF'
 
-# Java Environment Variables
+# Java 8 Environment Variables
 export JAVA_HOME=/usr/local/java8
 export JRE_HOME=${JAVA_HOME}/jre  
 export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib  
@@ -105,6 +117,30 @@ EOF
         source /etc/profile
         java -version
         check_ok "[安装完成] 检查Java8安装状态"
+        echo "[完成提示] 尝试输出 echo \$JAVA_HOME如果显示为空则执行source /etc/profile或者重新连接即可!"
+        source /etc/profile
+    fi
+}
+
+# 安装JAVA 21
+install_JAVA21(){
+    local filename=$1
+    if [ -d "/usr/local/java21" ]; then
+        echo "[安装结束] Java21已经安装!"
+    else
+        tar -zxvf "$filename"
+        sudo mv jdk-21.0.4+7 /usr/local/java21
+        cat >> /etc/profile <<'EOF'
+
+# Java 21 Environment Variables
+export JAVA_HOME=/usr/local/java21
+export JRE_HOME=${JAVA_HOME}
+export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib  
+export PATH=${JAVA_HOME}/bin:$PATH
+EOF
+        source /etc/profile
+        java -version
+        check_ok "[安装完成] 检查Java21安装状态"
         echo "[完成提示] 尝试输出 echo \$JAVA_HOME如果显示为空则执行source /etc/profile或者重新连接即可!"
         source /etc/profile
     fi
@@ -122,7 +158,7 @@ install_MINIO(){
     else
         mkdir /usr/local/minio
         mkdir /usr/local/minio/data
-        sudo mv minio /usr/local/minio/minio
+        mv minio /usr/local/minio
         chmod +x /usr/local/minio/minio
         echo "MINIO_VOLUMES=\"/usr/local/minio/data\"
 MINIO_OPTS=\"--console-address :9000 --address :9800\"
@@ -194,12 +230,12 @@ install_Tomcat(){
                 sudo rm /usr/bin/tomcatdown.sh     # 删除旧的软链接
                 sudo ln -s /usr/local/tomcat8/bin/shutdown.sh /usr/bin/tomcatdown.sh   # 创建新的软链接，将xxx替换为实际版本号
                 sudo ln -s /usr/local/tomcat8/bin/startup.sh /usr/bin/tomcatup.sh   # 创建新的软链接，将xxx替换为实际版本号
-                echo "[软链接] Nginx软链接已更新"
+                echo "[软链接] Tomcat软链接已更新"
             else
                 # Tomcat未安装，创建软链接
                 sudo ln -s /usr/local/tomcat8/bin/shutdown.sh /usr/bin/tomcatdown.sh   # 创建新的软链接，将xxx替换为实际版本号
                 sudo ln -s /usr/local/tomcat8/bin/startup.sh /usr/bin/tomcatup.sh   # 创建新的软链接，将xxx替换为实际版本号
-                echo "[软链接] Nginx软链接已创建"
+                echo "[软链接] Tomcat软链接已创建"
             fi
             echo "[安装完成] 8080端口检查Tomcat是否正确安装,无法访问请关闭防火墙service firewalld stop!"
             echo "[相关指令] tomcatdown.sh 关闭服务 tomcatup.sh 开启服务 或执行:/usr/local/tomcat8/bin/shutdown.sh(startup.sh) "
@@ -224,7 +260,7 @@ install_Nginx(){
         cd $filename
         echo "[编译程序] 开始编译Nginx!"
         sudo ./configure --prefix=/usr/local/nginx --with-http_ssl_module
-        sudo make && sudo make install
+        sudo make -j$(nproc) && sudo make install
         check_ok "[编译完成] 编译Nginx"
         echo "[配置软件] 开始配置Nginx!"
         cat > /tmp/soft.service <<EOF
@@ -279,7 +315,7 @@ install_Redis(){
         filename="${filename%.*.*}" # 去除尾部的 .tar.gz 或 .tar.xz
         cd $filename
         echo "[编译程序] 开始编译Redis6!"
-        sudo make && sudo make PREFIX=/usr/local/redis install
+        sudo make -j$(nproc) && sudo make PREFIX=/usr/local/redis install
         check_ok "[编译完成] 编译Redis6"
         sudo mv redis.conf /usr/local/redis/redis.conf
         # 修改bind地址为0.0.0.0，守护进程设置为yes，设置密码为linxi110
@@ -308,8 +344,20 @@ EOF
         echo "[启动服务] 服务Redis6开始启动!"
         sudo systemctl start redis
         check_ok "[启动服务] 服务Redis6开始成功 端口:6379 密码:$REDIS_PASSWORD!"
+        # 检查Redis是否安装
+        if [ -f "/usr/bin/redis-cli" ]; then
+            # Redis已安装，替换软链接
+            sudo rm /usr/bin/redis-cli     # 删除旧的软链接
+            sudo ln -s /usr/local/redis/bin/redis-cli /usr/bin/redis-cli   # 创建新的软链接，将xxx替换为实际版本号
+            echo "[软链接] Redis软链接已更新"
+        else
+            # Redis未安装，创建软链接
+            sudo ln -s /usr/local/redis/bin/redis-cli /usr/bin/redis-cli   # 创建软链接，将xxx替换为实际版本号
+            echo "[软链接] Redis软链接已创建"
+        fi
         echo "[安装完成] 6379端口检查Redis6是否正确安装,无法访问请关闭防火墙service firewalld stop!"
-        echo "[提示信息] 密码可到/usr/local/redis/redis.conf 修改requirepass后的参数! systemctl stop redis关闭服务"
+        echo "[提示信息] 密码可到/usr/local/redis/redis.conf 修改requirepass后的参数! systemctl stop redis关闭服务 redis-cli命令行访问!"
+        
     fi
 }
 
@@ -326,10 +374,10 @@ install_Python3(){
         filename="${filename%.*.*}" # 去除尾部的 .tar.gz 或 .tar.xz
         cd $filename
         echo "[安装依赖] 开始安装Python3依赖!"
-        if which apt > /dev/null 2>&1; then
+        if [ -x "$(command -v apt)" ]; then
             apt install -y libbz2-dev libffi-dev
         fi
-        if which yum > /dev/null 2>&1; then
+        if [ -x "$(command -v yum)" ]; then
             yum install -y bzip2-devel libffi-devel
         fi
         check_ok "[安装依赖] 安装Python3依赖"
@@ -344,7 +392,7 @@ install_Python3(){
             echo "[gcc版本] GCC版本小于8.1.0"
             ./configure --prefix=/usr/local/Python3
         fi
-        sudo make && sudo make install
+        sudo make -j$(nproc) && sudo make install
         check_ok "[编译完成] 编译Python3"
         echo "[环境变量] 配置Python3的环境变量!"
         cat >> /etc/profile <<'EOF'
@@ -379,19 +427,28 @@ install_LibreOffice(){
     else
         tar -zxvf "$filename"
         filename=$(basename "$filename") # 获取不包含路径和后缀的文件名
-        filename="${filename%.*.*}" # 去除尾部的 .tar.gz 或 .tar.xz
-        if which yum > /dev/null 2>&1; then
-            sudo yum install ./$filename/RPMS/*.rpm -y
+        # filename="${filename%.*.*}" # 去除尾部的 .tar.gz 或 .tar.xz (对应解压后的文件夹名)
+        if [ -x "$(command -v yum)" ]; then
+            filename="LibreOffice_7.6.7.2_Linux_x86-64_rpm"
             echo "[安装依赖] libreoffice-headless开始安装!"
             yum install -y libreoffice-headless
+            sudo yum install ./$filename/RPMS/*.rpm -y
         fi
-        if which apt > /dev/null 2>&1; then
-            sudo dpkg -i ./$filename/DEBS/*.deb -y
-            echo "[安装依赖] libreoffice-headless开始安装!"
-            sudo apt install -y libreoffice-headless
+        if [ -x "$(command -v apt)" ]; then
+            filename="LibreOffice_7.6.7.2_Linux_x86-64_deb"
+            # echo "[安装依赖] libreoffice-headless开始安装!"
+            # sudo apt install -y libreoffice-headless
+            sudo dpkg -i ./$filename/DEBS/*.deb
+            sudo apt-get install -f
         fi
-        check_ok "[安装依赖] libreoffice-headless安装"
-        echo "[操作提示] libreoffice --version"
+        # check_ok "[安装依赖] libreoffice-headless安装"
+        echo "[创建软连接] 开始创建 libreoffice 软连接!"
+        sudo rm /usr/bin/libreoffice     # 删除旧的软链接
+        sudo ln -s /usr/local/bin/libreoffice7.6 /usr/bin/libreoffice   # 创建新的软链接，将xxx替换为实际版本号
+        check_ok "[创建软连接] 创建 libreoffice 软连接"
+        echo "[检查软件] 检查软件是否安装成功!"
+        libreoffice --version
+        echo "[操作提示] libreoffice --version / libreoffice7.6 --version"
     fi
 }
 
@@ -462,7 +519,17 @@ EOF
     /usr/local/mysql/bin/mysql -uroot -p${password} -hlocalhost -e "ALTER USER USER() IDENTIFIED BY '${MYSQL_PASSWORD}';CREATE USER 'root'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;ALTER USER 'root'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';flush privileges;" --connect-expired-password
     check_ok "[修改配置] 服务MySQL配置修改"
     echo "[防火墙] 自动关闭防火墙!"
-    systemctl stop firewalld
+    # 检测系统类型并执行相应的命令
+    if [ -x "$(command -v firewall-cmd)" ]; then
+        # CentOS / RHEL 7+
+        systemctl stop firewalld
+        systemctl disable firewalld
+    elif [ -x "$(command -v ufw)" ]; then
+        # Ubuntu / Debian
+        ufw disable
+    else
+        echo "不支持的防火墙管理工具或未检测到防火墙服务,请手动设置关闭防火墙"
+    fi
     service mysql restart
     echo "[安装完成] MySQL$version Root密码:[${MYSQL_PASSWORD}] 端口:3306 默认开启远程访问!"
 }
@@ -543,6 +610,41 @@ check_ok() {
     fi
 }
 
+# 定义检查网络连接的函数
+check_network() {
+    # 检查系统中是否有ping命令
+    if [ -x "$(command -v ping)" ]; then
+        # 使用ping命令检测网络
+        ping -c 1 bing.com > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            echo "[网络检测] 网络连接正常 (通过ping)"
+            return 0  # 返回0表示网络连接正常
+        else
+            echo "[网络检测] 无法连接到网络 (通过ping)"
+            return 1  # 返回1表示无法连接到网络
+        fi
+    elif [ -x "$(command -v curl)" ]; then
+        # 如果没有ping命令，尝试使用curl命令检测网络
+        curl --silent --head http://bing.com > /dev/null
+        if [ $? -eq 0 ]; then
+            echo "[网络检测] 网络连接正常 (通过curl)"
+            return 0  # 返回0表示网络连接正常
+        else
+            echo "[网络检测] 无法连接到网络 (通过curl)"
+            return 1  # 返回1表示无法连接到网络
+        fi
+    else
+        (echo > /dev/tcp/bing.com/80) > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            echo "[网络检测] 网络连接正常 (通过tcp)"
+            return 0  # 返回0表示网络连接正常
+        else
+            echo "[网络检测] 无法连接到网络 (通过tcp)"
+            return 1  # 返回1表示无法连接到网络
+        fi
+    fi
+}
+
 # 检查文件是否存在
 check_file_exists() {
     local file="$1"
@@ -575,7 +677,7 @@ check_dir_exists() {
 
 # 自动选择包管理软件并检查安装依赖
 check_requirements() {
-    if which yum > /dev/null 2>&1; then
+    if [ -x "$(command -v yum)" ]; then
         echo "[安装依赖] 开始安装基础依赖(RHEL/Rocky)!"
         for pkg in gcc tcl make wget curl pcre-devel zlib-devel openssl-devel libffi-devel sqlite-devel libaio; do
             if ! rpm -q $pkg > /dev/null 2>&1; then
@@ -586,9 +688,9 @@ check_requirements() {
             fi
         done
     fi
-    if which apt > /dev/null 2>&1; then
+    if [ -x "$(command -v apt)" ]; then
         echo "[安装依赖] 开始安装基础依赖(Ubuntu/kali)!"
-        for pkg in build-essential manpages-dev make wget curl libpcre++-dev libssl-dev zlib1g-dev; do
+        for pkg in build-essential manpages-dev make wget curl libpcre++-dev libssl-dev zlib1g-dev libaio1 libnuma-dev libtinfo5 libncurses5; do
             if ! dpkg -l $pkg > /dev/null 2>&1; then
                 sudo apt install -y $pkg
                 check_ok "[安装依赖] 安装依赖${pkg}"
@@ -623,36 +725,44 @@ get_system_info() {
 # 下载软件安装包
 download_soft() {
     local software=$1
-    local url=${software_urls[$software]}
-    local filename=$(basename "$url")
-    # 检查 URL 是否以 "http://" 或 "https://" 开头
-    if [[ $url =~ ^(https?://)(.*)$ ]]; then
-        # 提取文件名
-        if [[ ${BASH_REMATCH[2]} =~ /([^/]+)$ ]]; then
-            filename="${BASH_REMATCH[1]}"
+    check_network
+    # 检查网络
+    if [ $? -eq 0 ]; then
+        local url=${software_urls[$software]}
+        # 下载逻辑
+        if [ -x "$(command -v apt)" ]; then
+            url=$(echo "$url" | sed 's/rpm/deb/g')
+        fi
+        local filename=$(basename "$url")
+        # 检查 URL 是否以 "http://" 或 "https://" 开头
+        if [[ $url =~ ^(https?://)(.*)$ ]]; then
+            # 提取文件名
+            if [[ ${BASH_REMATCH[2]} =~ /([^/]+)$ ]]; then
+                filename="${BASH_REMATCH[1]}"
+            else
+                filename=""
+            fi
         else
             filename=""
         fi
-    else
-        filename=""
-    fi
-    echo "[检测软件] ${software}软件包"
-    check_file_exists "$filename"
-    local status=$?
-    if [ $status -eq 2 ]; then
-        filename=$url
-    elif [ $status -ne 0 ]; then
-        # 下载逻辑
-        if which apt > /dev/null 2>&1; then
-            url= $(echo "$url" | awk '{print $0}' | sed 's/rpm/deb/g')
+        echo "[检测软件] ${software}软件包"
+        check_file_exists "$filename"
+        local status=$?
+        if [ $status -eq 2 ]; then
+            filename=$url
+        elif [ $status -ne 0 ]; then
+            echo "[开始下载] ${software}软件包"
+            sudo curl -O $url
+            check_ok "[开始完成] ${software}软件包"
         fi
-        echo "[开始下载] ${software}软件包"
-        sudo curl -O $url
-        check_ok "[开始完成] ${software}软件包"
-    fi
-    echo "[开始安装] ${software}软件"
-    # 安装函数
-    install_$software "$filename"
+        echo "[开始安装] ${software}软件"
+        # 安装函数
+        install_$software "$filename"
+    else
+        # 如果无法连接到网络，则检测当前文件夹
+        echo "无法连接到网络，检测当前文件夹..."
+        install_$software "$filename"
+fi
 }
 
 # 主函数-菜单
@@ -664,10 +774,12 @@ main() {
 ██║     ██║██║╚██╗██║ ██╔██╗ ██║╚════╝╚════██║██║   ██║██╔══╝     ██║   
 ███████╗██║██║ ╚████║██╔╝ ██╗██║      ███████║╚██████╔╝██║        ██║   
 ╚══════╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝      ╚══════╝ ╚═════╝ ╚═╝        ╚═╝   
-        项目:一键安装脚本          BY-林夕          版本:V1.1
+        项目:一键安装脚本          BY-林夕          版本:V1.2
         提示指令:
-            关闭防火墙: service firewalld stop
-            安装Docker: curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+            快速换源(国内): <soft文件名.sh> source
+            关闭防火墙: service firewalld stop | sudo ufw disable
+            安装Docker(快速): bash <(curl -sSL https://linuxmirrors.cn/docker.sh)
+        注意: 使用脚本前,请务必在首次使用时修改默认内置账号/密码,避免面临潜在的安全风险!
 "
     # 调用函数并获取返回值
     get_system_info
@@ -698,8 +810,8 @@ main() {
         check_ok "[软件路径] ${soft_path}创建"
         cd "$soft_path"
     fi
-    indices=($input)
     check_requirements
+    indices=($input)
     for index in "${indices[@]}"
     do
         cd $root_path/$soft_path
@@ -714,7 +826,12 @@ main() {
     done
 }
 
-main
+# 脚本入口
+if [ $1 == "source" ]; then
+    switch_source
+else
+    main
+fi
 
 
 
